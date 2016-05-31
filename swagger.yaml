@@ -1,6 +1,6 @@
-swagger: 2.0
+swagger: '2.0'
 info:
-  version: "2.0"
+  version: "1.0.0"
   title: apidoc-blueprint
   description: 'Swagger version of api documentation example'
 host: apidoc.mismatchedcode.com
