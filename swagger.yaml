@@ -1,0 +1,256 @@
+swagger: 2.0
+info:
+  version: "1.0.0"
+  title: apidoc-blueprint
+  description: 'Swagger version of api documentation example'
+host: apidoc.mismatchedcode.com
+basePath: /
+securityDefinitions: {}
+schemes:
+- http
+consumes:
+- application/json
+produces:
+- application/json
+paths:
+  /:
+    get:
+      description: Checks basic connectivity to the service.
+      tags:
+      - Healthcheck Operations
+      operationId: Get_Root operation_
+      produces:
+      - application/json
+      parameters: []
+      responses:
+        200:
+          description:
+          schema:
+            $ref: '#/definitions/Rootoperationresponse'
+  /live:
+    get:
+      description: The service will respond positively if it is up and running and either starting up or shutting down.
+      tags:
+      - Healthcheck Operations
+      operationId: Get_Liveness probe_
+      produces:
+      - application/json
+      parameters: []
+      responses:
+        200:
+          description:
+          schema:
+            $ref: '#/definitions/Livenessproberesponse'
+  /ready:
+    get:
+      description: The service will respond positively if it is up and running and ready to accept requests
+      tags:
+      - Healthcheck Operations
+      operationId: Get_Readiness probe_
+      produces:
+      - application/json
+      parameters: []
+      responses:
+        200:
+          description:
+          schema:
+            $ref: '#/definitions/Readinessproberesponse'
+  /workers/{id}/:
+    get:
+      description:
+      tags:
+      - Control Operations
+      operationId: List workers_
+      produces:
+      - application/json
+      parameters:
+      - name: id
+        in: path
+        required: false
+        x-is-map: false
+        type: number
+        format: double
+        description: A specific worker id.
+      - name: rangeStart
+        in: query
+        required: false
+        x-is-map: false
+        default: 0
+        type: number
+        format: double
+        description: Beginning id to define a range (inclusive)
+      - name: rangeStop
+        in: query
+        required: false
+        x-is-map: false
+        default: n-1
+        type: number
+        format: double
+        description: Ending id to define a range (inclusive)
+      - name: state
+        in: query
+        required: false
+        x-is-map: false
+        enum:
+        - failed
+        - new
+        - started
+        - stopped
+        type: string
+        description: Filter the results by state
+      responses:
+        200:
+          description:
+          schema:
+            $ref: '#/definitions/Listworkersresponse'
+  /workers/{id}/{command}/:
+    post:
+      description:
+      tags:
+      - Control Operations
+      operationId: Create_Control state_
+      produces:
+      - application/json
+      parameters:
+      - name: command
+        in: path
+        required: true
+        x-is-map: false
+        enum:
+        - start
+        - stop
+        - delete
+        type: string
+      - name: id
+        in: path
+        required: false
+        x-is-map: false
+        type: number
+        format: double
+        description: A specific worker id.
+      - name: rangeStart
+        in: query
+        required: false
+        x-is-map: false
+        default: 0
+        type: number
+        format: double
+        description: Beginning id to define a range (inclusive)
+      - name: rangeStop
+        in: query
+        required: false
+        x-is-map: false
+        default: n-1
+        type: number
+        format: double
+        description: Ending id to define a range (inclusive)
+      - name: state
+        in: query
+        required: false
+        x-is-map: false
+        enum:
+        - failed
+        - new
+        - started
+        - stopped
+        type: string
+        description: Filter the results by state
+      responses:
+        200:
+          description:
+          schema:
+            $ref: '#/definitions/Controlstateresponse'
+  /workers:
+    post:
+      description:
+      tags:
+      - Control Operations
+      operationId: Add new worker_
+      produces:
+      - application/json
+      parameters:
+      - name: body
+        in: body
+        required: true
+        x-is-map: false
+        schema:
+          $ref: '#/definitions/Addnewworkerrequest'
+      responses:
+        200:
+          description:
+          schema:
+            $ref: '#/definitions/Addnewworkerresponse'
+definitions:
+  Rootoperationresponse:
+    title: Root operation response
+    type: object
+    properties:
+      message:
+        type: string
+    required:
+    - message
+  Livenessproberesponse:
+    title: Liveness probe response
+    type: object
+    properties:
+      message:
+        type: string
+    required:
+    - message
+  Readinessproberesponse:
+    title: Readiness probe response
+    type: object
+    properties:
+      message:
+        type: string
+    required:
+    - message
+  Listworkersresponse:
+    title: List workers response
+    type: object
+    properties:
+      workers:
+        type: array
+        items:
+          type: object
+    required:
+    - workers
+  Controlstateresponse:
+    title: Control state response
+    type: object
+    properties:
+      message:
+        type: string
+    required:
+    - message
+  Addnewworkerrequest:
+    title: Add new worker request
+    type: object
+    properties:
+      name:
+        type: string
+    required:
+    - name
+  Addnewworkerresponse:
+    title: Add new worker response
+    type: object
+    properties:
+      message:
+        type: string
+    required:
+    - message
+  state:
+    title: state
+    type: string
+    enum:
+    - failed
+    - new
+    - started
+    - stopped
+  command:
+    title: command
+    type: string
+    enum:
+    - start
+    - stop
+    - delete

@@ -1,0 +1,236 @@
+#%RAML 0.8
+title: apidoc-blueprint
+version: 1.0
+documentation:
+- title: apidoc-blueprint
+  content: 'TODO: Add a description'
+baseUri: http://apidoc.mismatchedcode.com/
+schemas:
+- Root operation response: |
+    {
+      "id": "Root operation response",
+      "title": "Root operation response",
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "message"
+      ]
+    }
+- Liveness probe response: |
+    {
+      "id": "Liveness probe response",
+      "title": "Liveness probe response",
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "message"
+      ]
+    }
+- Readiness probe response: |
+    {
+      "id": "Readiness probe response",
+      "title": "Readiness probe response",
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "message"
+      ]
+    }
+- List workers response: |
+    {
+      "id": "List workers response",
+      "title": "List workers response",
+      "type": "object",
+      "properties": {
+        "workers": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          }
+        }
+      },
+      "required": [
+        "workers"
+      ]
+    }
+- Control state response: |
+    {
+      "id": "Control state response",
+      "title": "Control state response",
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "message"
+      ]
+    }
+- Add new worker request: |
+    {
+      "id": "Add new worker request",
+      "title": "Add new worker request",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ]
+    }
+- Add new worker response: |
+    {
+      "id": "Add new worker response",
+      "title": "Add new worker response",
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "message"
+      ]
+    }
+/:
+  get:
+    displayName: Root operation
+    description: Checks basic connectivity to the service.
+    responses:
+      200:
+        description: Success
+        body:
+          application/json:
+            schema: Root operation response
+/live:
+  get:
+    displayName: Liveness probe
+    description: The service will respond positively if it is up and running and either starting up or shutting down.
+    responses:
+      200:
+        description: Success
+        body:
+          application/json:
+            schema: Liveness probe response
+/ready:
+  get:
+    displayName: Readiness probe
+    description: The service will respond positively if it is up and running and ready to accept requests
+    responses:
+      200:
+        description: Success
+        body:
+          application/json:
+            schema: Readiness probe response
+/workers:
+  /{id}:
+    /:
+      uriParameters:
+        id:
+          description: A specific worker id.
+          type: number
+          required: false
+          displayName: id
+      get:
+        displayName: List workers
+        description: 
+        responses:
+          200:
+            description: Success
+            body:
+              application/json:
+                schema: List workers response
+        queryParameters:
+          rangeStart:
+            description: Beginning id to define a range (inclusive)
+            type: number
+            default: 0
+            required: false
+            displayName: rangeStart
+          rangeStop:
+            description: Ending id to define a range (inclusive)
+            type: number
+            default: n-1
+            required: false
+            displayName: rangeStop
+          state:
+            description: Filter the results by state
+            required: false
+            displayName: state
+            enum:
+            - '"failed"'
+            - '"new"'
+            - '"started"'
+            - '"stopped"'
+    /{command}/:
+      uriParameters:
+        command:
+          required: true
+          displayName: command
+          enum:
+          - '"start"'
+          - '"stop"'
+          - '"delete"'
+        id:
+          description: A specific worker id.
+          type: number
+          required: false
+          displayName: id
+      post:
+        displayName: Control state
+        description: 
+        responses:
+          200:
+            description: Success
+            body:
+              application/json:
+                schema: Control state response
+        queryParameters:
+          rangeStart:
+            description: Beginning id to define a range (inclusive)
+            type: number
+            default: 0
+            required: false
+            displayName: rangeStart
+          rangeStop:
+            description: Ending id to define a range (inclusive)
+            type: number
+            default: n-1
+            required: false
+            displayName: rangeStop
+          state:
+            description: Filter the results by state
+            required: false
+            displayName: state
+            enum:
+            - '"failed"'
+            - '"new"'
+            - '"started"'
+            - '"stopped"'
+  post:
+    body:
+      application/json:
+        schema: Add new worker request
+    displayName: Add new worker
+    description: 
+    responses:
+      200:
+        description: Success
+        body:
+          application/json:
+            schema: Add new worker response
