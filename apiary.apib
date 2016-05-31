@@ -1,80 +1,130 @@
 FORMAT: 1A
-HOST: http://polls.apiblueprint.org/
+HOST: http://apidoc.mismatchedcode.com/
 
 # apidoc-blueprint
 
-Polls is a simple API allowing consumers to view polls and vote in them.
+This is a sample api which I built to figure out API Blueprint (and others)
 
-## Questions Collection [/questions]
+# Group Healthcheck Operations
 
-### List All Questions [GET]
+## Root operation [GET /]
+
+Checks basic connectivity to the service.
 
 + Response 200 (application/json)
 
-        [
-            {
-                "question": "Favourite programming language?",
-                "published_at": "2015-08-05T08:40:51.620Z",
-                "choices": [
+        {"message":"Hello"}
+
+## Liveness probe [GET /live]
+
+The service will respond positively if it is up and running and either starting up or shutting down.
+
++ Response 200 (application/json)
+
+        {"message":"Alive"}
+
+## Readiness probe [GET /ready]
+
+The service will respond positively if it is up and running and ready to accept requests
+
++ Response 200 (application/json)
+
+        {"message":"Ready"}
+
+# Group Control Operations
+
+## Workers 
+
+### List workers [GET /workers/{id}/{?rangeStart,rangeStop,state}]
+
++ Parameters
+    + id (optional, number) - A specific worker id.
+    + rangeStart (optional, number) - Beginning id to define a range (inclusive)
+        + Default: 0
+    + rangeStop (optional, number) - Ending id to define a range (inclusive)
+        + Default: `n-1`
+    + state (optional, array) - Filter the results by state
+        + Members
+            + "started"
+            + "stopped"
+            + "new"
+            + "failed"
+
++ Response 200 (application/json)
+
+        {"workers": 
+            [
+                {"1": 
                     {
-                        "choice": "Swift",
-                        "votes": 2048
-                    }, {
-                        "choice": "Python",
-                        "votes": 1024
-                    }, {
-                        "choice": "Objective-C",
-                        "votes": 512
-                    }, {
-                        "choice": "Ruby",
-                        "votes": 256
+                        "name": "Work Batch 1",
+                        "state": "started"
                     }
-                ]
-            }
-        ]
-
-### Create a New Question [POST]
-
-You may create your own question using this action. It takes a JSON
-object containing a question and a collection of answers in the
-form of choices.
-
-+ Request (application/json)
-
-        {
-            "question": "Favourite programming language?",
-            "choices": [
-                "Swift",
-                "Python",
-                "Objective-C",
-                "Ruby"
+                }, 
+                {"5": 
+                    {
+                        "name": "Email Sender",
+                        "state": "stopped"
+                    }
+                }, 
+                {"8": 
+                    {
+                        "name": "Food Prep",
+                        "state": "new"
+                    }
+                }, 
+                {"9": 
+                    {
+                        "name": "Zombie Killer",
+                        "state": "failed"
+                    }
+                }
             ]
         }
 
-+ Response 201 (application/json)
+### Control state [POST /workers/{id}/{command}/{?rangeStart,rangeStop,state}]
++ Parameters
+    + command (required, string)
+        + Members
+            + "start" 
+            + "stop" 
+            + "delete"
+    + id (optional, number) - A specific worker id.
+    + rangeStart (optional, number) - Beginning id to define a range (inclusive)
+        + Default: 0
+    + rangeStop (optional, number) - Ending id to define a range (inclusive)
+        + Default: `n-1`
+    + state (optional, array) - Filter the results by state
+        + Members
+            + "started"
+            + "stopped"
+            + "new"
+            + "failed"
++ Response 202 (application/json)
 
-    + Headers
+        {"message":"Accepted."}
 
-            Location: /questions/2
+### Add new worker [POST /workers]
+
++ Request (application/json)
 
     + Body
 
             {
-                "question": "Favourite programming language?",
-                "published_at": "2015-08-05T08:40:51.620Z",
-                "choices": [
-                    {
-                        "choice": "Swift",
-                        "votes": 0
-                    }, {
-                        "choice": "Python",
-                        "votes": 0
-                    }, {
-                        "choice": "Objective-C",
-                        "votes": 0
-                    }, {
-                        "choice": "Ruby",
-                        "votes": 0
-                    }
-                ]
+              "name": "Worker Name"
             }
+
+    + Schema
+
+            {
+              "$schema": "http://json-schema.org/draft-04/schema#",
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string
+                }
+              }
+            }
+
++ Response 201 (application/json)
+
+        { "message": "Created." }
